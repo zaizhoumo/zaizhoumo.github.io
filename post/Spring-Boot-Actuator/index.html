@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Spring Boot Actuator | 在周末的博客</title>
+    <meta property="og:title" content="Spring Boot Actuator - 在周末的博客">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2008-04-05T16:08:27&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2008-04-05T16:08:27&#43;08:00'>
+        
+    <meta name="Keywords" content="Java,Spring,SpringBoot,SpringCloud,分布式,架构,消息队列,MQ,MySQL,Redis,在周末,博客,微服务">
+    <meta name="description" content="Spring Boot Actuator">
+        
+    <meta name="author" content="在周末">
+    <meta property="og:url" content="https://zaizhoumo.github.io/post/Spring-Boot-Actuator/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-4031353640611810",
+        enable_page_level_ads: true
+    });
+    </script>
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://zaizhoumo.github.io">
+                        在周末的博客
+                    </a>
+                
+                <p class="description">专注于Java后端开发</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://zaizhoumo.github.io">首页</a>
+                    
+                    <a  href="https://zaizhoumo.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://zaizhoumo.github.io/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#50-开启actuator">50 开启Actuator</a></li>
+    <li><a href="#51-endpoints端点">51 Endpoints（端点）</a>
+      <ul>
+        <li><a href="#21-enabling-endpoints开启端点">2.1 Enabling Endpoints（开启端点）</a></li>
+        <li><a href="#22-exposing-endpoints暴露端点">2.2 Exposing Endpoints（暴露端点）</a></li>
+        <li><a href="#23-保护http端点">2.3 保护HTTP端点</a></li>
+        <li><a href="#24-configuring-endpoints">2.4 Configuring Endpoints</a></li>
+        <li><a href="#25-hypermedia-for-actuator-web-endpoints">2.5 Hypermedia for Actuator Web Endpoints</a></li>
+        <li><a href="#26-cors-support跨域支持">2.6 CORS Support（跨域支持）</a></li>
+        <li><a href="#27-implementing-custom-endpoints自定义端点">2.7 Implementing Custom Endpoints（自定义端点）</a></li>
+        <li><a href="#28-health-information健康信息">2.8 Health Information（健康信息）</a></li>
+        <li><a href="#29-application-information">2.9 Application Information</a></li>
+      </ul>
+    </li>
+    <li><a href="#52-monitoring-and-management-over-http">52 Monitoring and Management over HTTP</a>
+      <ul>
+        <li><a href="#521-customizing-the-management-endpoint-paths">52.1 Customizing the Management Endpoint Paths</a></li>
+        <li><a href="#522-customizing-the-management-server-port">52.2 Customizing the Management Server Port</a></li>
+        <li><a href="#523-configuring-management-specific-ssl">52.3 Configuring Management-specific SSL</a></li>
+        <li><a href="#524-customizing-the-management-server-address">52.4 Customizing the Management Server Address</a></li>
+        <li><a href="#525-disabling-http-endpoints">52.5 Disabling HTTP Endpoints</a></li>
+      </ul>
+    </li>
+    <li><a href="#53-monitoring-and-management-over-jmx">53 Monitoring and Management over JMX</a></li>
+    <li><a href="#54-loggers">54 Loggers</a>
+      <ul>
+        <li><a href="#541-configure-a-logger">54.1 Configure a Logger</a></li>
+      </ul>
+    </li>
+    <li><a href="#55-metrics">55 Metrics</a>
+      <ul>
+        <li><a href="#551-getting-started">55.1 Getting started</a></li>
+        <li><a href="#552-supported-monitoring-systems">55.2 Supported monitoring systems</a></li>
+        <li><a href="#553-supported-metrics">55.3 Supported Metrics</a></li>
+        <li><a href="#554-registering-custom-metrics">55.4 Registering custom metrics</a></li>
+        <li><a href="#555-customizing-individual-metrics">55.5 Customizing individual metrics</a></li>
+        <li><a href="#556-metrics-endpoint">55.6 Metrics endpoint</a></li>
+      </ul>
+    </li>
+    <li><a href="#56-auditing审计">56 Auditing（审计）</a></li>
+    <li><a href="#57-http-tracing">57 HTTP Tracing</a></li>
+    <li><a href="#3-实验">3 实验</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Spring Boot Actuator</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2008年4月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://zaizhoumo.github.io/categories/Spring-Boot'>Spring Boot</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h1 id="part-v-spring-boot-actuator">Part V. Spring Boot Actuator</h1>
+<p>通过 Spring Boot Actuator 可以使用 HTTP endpoints 或 JMX 监控和管理应用程序。Auditing（审计）, health（健康状况）, and metrics gathering（metrics收集）都可以被应用于应用程序。</p>
+<h2 id="50-开启actuator">50 开启Actuator</h2>
+<p>添加maven依赖</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="color:#000080">&lt;dependencies&gt;</span>
+	<span style="color:#000080">&lt;dependency&gt;</span>
+		<span style="color:#000080">&lt;groupId&gt;</span>org.springframework.boot<span style="color:#000080">&lt;/groupId&gt;</span>
+		<span style="color:#000080">&lt;artifactId&gt;</span>spring-boot-starter-actuator<span style="color:#000080">&lt;/artifactId&gt;</span>
+	<span style="color:#000080">&lt;/dependency&gt;</span>
+<span style="color:#000080">&lt;/dependencies&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>Definition of Actuator</strong></p>
+<p>An actuator is a manufacturing term that refers to a mechanical device for moving or controlling something. Actuators can generate a large amount of motion from a small change.</p>
+<h2 id="51-endpoints端点">51 Endpoints（端点）</h2>
+<p>Actuator 端点让你可以监控应用程序并且可以和应用程序进行交互。Spring Boot包含很多内置的端点，允许你添加自己的端点。例如，<code>health</code> 端点提供了基本的应用健康信息。</p>
+<p>每个 endpoint 都可以被开启或禁用。这样控制着 endpoint 是否被创建、它的bean是否在应用程序上下文中。要远程访问这些 endpoint ，需要通过 HTTP 或 JMX 暴露。大多数会选择 HTTP ， endpoint 的 ID 和 /actuator 前缀被映射为一个 URL。例如，默认情况下，<code>health</code>  端点被映射为 <code>/actuator/health</code>。</p>
+<p>以下是与技术无关的 <code>endpoint  </code>:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th align="left">Description</th>
+<th>Enabled by default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auditevents</code></td>
+<td align="left">Exposes audit events information for the current application.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>beans</code></td>
+<td align="left">Displays a complete list of all the Spring beans in your application.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>conditions</code></td>
+<td align="left">Shows the conditions that were evaluated on configuration and auto-configuration classes and the reasons why they did or did not match.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>configprops</code></td>
+<td align="left">Displays a collated list of all <code>@ConfigurationProperties</code>.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td align="left">Exposes properties from Spring’s <code>ConfigurableEnvironment</code>.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>flyway</code></td>
+<td align="left">Shows any Flyway database migrations that have been applied.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td align="left">Shows application health information.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>httptrace</code></td>
+<td align="left">Displays HTTP trace information (by default, the last 100 HTTP request-response exchanges).</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td align="left">Displays arbitrary application info.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>loggers</code></td>
+<td align="left">Shows and modifies the configuration of loggers in the application.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>liquibase</code></td>
+<td align="left">Shows any Liquibase database migrations that have been applied.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td align="left">Shows ‘metrics’ information for the current application.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>mappings</code></td>
+<td align="left">Displays a collated list of all <code>@RequestMapping</code> paths.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>scheduledtasks</code></td>
+<td align="left">Displays the scheduled tasks in your application.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td align="left">Allows retrieval and deletion of user sessions from a Spring Session-backed session store. Not available when using Spring Session’s support for reactive web applications.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>shutdown</code></td>
+<td align="left">Lets the application be gracefully shutdown.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>threaddump</code></td>
+<td align="left">Performs a thread dump.</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>如果是 WEB 应用程序（Spring MVC, Spring WebFlux, or Jersey），还可以使用以下端点：</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Description</th>
+<th>Enabled by default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>heapdump</code></td>
+<td>Returns a GZip compressed <code>hprof</code> heap dump file.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>jolokia</code></td>
+<td>Exposes JMX beans over HTTP (when Jolokia is on the classpath, not available for WebFlux).</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>logfile</code></td>
+<td>Returns the contents of the logfile (if <code>logging.file</code> or <code>logging.path</code> properties have been set). Supports the use of the HTTP <code>Range</code> header to retrieve part of the log file’s content.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>prometheus</code></td>
+<td>Exposes metrics in a format that can be scraped by a Prometheus server.</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>注意，Enabled （启用）不代表可以直接访问，还需要将其暴露出来。</p>
+<h3 id="21-enabling-endpoints开启端点">2.1 Enabling Endpoints（开启端点）</h3>
+<p>默认情况下，除了 <code>shutdown </code> 端点是禁用的，其他的都是开启的。使用属性 <code>management.endpoint.&lt;id&gt;.enabled</code> 开启端点。</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoint.shutdown.enabled=true
+</code></pre><p>如果你在配置端点启用时想 opt-in 而不是 opt-out，需要将<code>management.endpoints.enabled-by-default</code>设置为 false，并且将要开启的端点设置为 enabled 。例如，下面就是禁用除info端点之外的所有端点。</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.enabled-by-default=false
+management.endpoint.info.enabled=true
+</code></pre><p>注意，禁用的端点（Disabled endpoints ）将从应用上下文中完全删除。如果只是想改变端点的暴露（exposed）状态，使用<a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-endpoints.html#production-ready-endpoints-exposing-endpoints"><code>include</code> and <code>exclude </code></a> 属性。</p>
+<h3 id="22-exposing-endpoints暴露端点">2.2 Exposing Endpoints（暴露端点）</h3>
+<p>由于端点可能包含敏感信息，应该谨慎考虑何时暴露它们。默认情况下，端点的暴露情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>JMX</th>
+<th>Web</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auditevents</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>beans</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>conditions</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>configprops</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>flyway</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>heapdump</code></td>
+<td>N/A</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>httptrace</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>jolokia</code></td>
+<td>N/A</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>logfile</code></td>
+<td>N/A</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>loggers</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>liquibase</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>metrics</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>mappings</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>prometheus</code></td>
+<td>N/A</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>scheduledtasks</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>shutdown</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>threaddump</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，默认情况下，Http 只暴露<code>health</code>和<code>info</code>两个端点。</p>
+<p>要修改端点的暴露状态，following属性 ：</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>management.endpoints.jmx.exposure.exclude</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>management.endpoints.jmx.exposure.include</code></td>
+<td><code>*</code></td>
+</tr>
+<tr>
+<td><code>management.endpoints.web.exposure.exclude</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>management.endpoints.web.exposure.include</code></td>
+<td><code>info, health</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>include</code>属性列出了暴露的端点ID，<code>exclude</code> 属性列出了不被暴露的端点ID。<code>exclude</code> 属性优先<code>include</code>属性。</p>
+<p>例如，禁止JMX 的除了 <code>health</code> and <code>info</code>的所有节点，使用following property：</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.jmx.exposure.include=health,info
+</code></pre><p><code>*</code> 指代所有的端点，例如，暴露HTTP 的除 <code>env</code> and <code>beans</code> 之外的所有端点，如下：</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.web.exposure.include=*
+management.endpoints.web.exposure.exclude=env,beans
+</code></pre><blockquote>
+<p><code>*</code> 在YAML中有特殊的含义，所以需要加上双引号。</p>
+</blockquote>
+<blockquote>
+<p>如果您的应用程序对外公开，我们强烈建议您保护您的端点，方法见下文。 
+如果您希望在暴露端点时实施您自己的策略，您可以注册一个<code>EndpointFilter</code> bean。</p>
+</blockquote>
+<h3 id="23-保护http端点">2.3 保护HTTP端点</h3>
+<p>和 Spring Security配合</p>
+<h3 id="24-configuring-endpoints">2.4 Configuring Endpoints</h3>
+<p>对于不带任何参数的<code>读取</code>操作,端点自动缓存对其响应。配置缓存时间</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoint.beans.cache.time-to-live=10s
+</code></pre><h3 id="25-hypermedia-for-actuator-web-endpoints">2.5 Hypermedia for Actuator Web Endpoints</h3>
+<p>。。。</p>
+<h3 id="26-cors-support跨域支持">2.6 CORS Support（跨域支持）</h3>
+<p>跨域资源共享（Cross-origin resource sharing, CORS）是一种W3C规范，它允许您以灵活的方式指定授权了哪种跨域请求。如果使用Spring MVC or Spring WebFlux，端点可以通过配置支持这种场景。</p>
+<p>跨域支持默认是禁用的，通过配置属性开启：</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.web.cors.allowed-origins=http://example.com
+management.endpoints.web.cors.allowed-methods=GET,POST
+</code></pre><h3 id="27-implementing-custom-endpoints自定义端点">2.7 Implementing Custom Endpoints（自定义端点）</h3>
+<p>如果添加带有@Endpoint注释的@Bean，任何带有 <code>@ReadOperation</code>, <code>@WriteOperation</code>, or <code>@DeleteOperation</code>注解的方法都会通过JMX 或HTTP 暴露出来。</p>
+<p>也可以通过<code>@JmxEndpoint</code> or <code>@WebEndpoint</code>注解实现自定义端点。</p>
+<p>使用<code>@EndpointWebExtension</code> and <code>@EndpointJmxExtension</code>注解扩展端点。</p>
+<p>还可以通过 Spring <code>@Controller</code> and <code>@RestController</code> 实现端点。</p>
+<h3 id="28-health-information健康信息">2.8 Health Information（健康信息）</h3>
+<p>可以使用健康信息检查应用程序的运行状态。当生产环境发生故障时，监控软件常常使用它发出告警。端点为 <code>health</code> ，展示的信息依赖配置属性 <code>management.endpoint.health.show-details</code> ：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>never</code></td>
+<td>Details are never shown. 不展示细节，默认值。</td>
+</tr>
+<tr>
+<td><code>when-authorized</code></td>
+<td>Details are only shown to authorized users. Authorized roles can be configured using <code>management.endpoint.health.roles</code>. 仅向授权用户展示细节。</td>
+</tr>
+<tr>
+<td><code>always</code></td>
+<td>Details are shown to all users.向所有用户展示细节</td>
+</tr>
+</tbody>
+</table>
+<p>健康信息是从 <code>ApplicationContext</code>中定义的所有 <a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/health/HealthIndicator.java"><code>HealthIndicator</code></a> bean 收集的。Spring Boot中包含了许多自动配置的 HealthIndicators ，也可以自定义。默认情况下，系统的最终状态通过 <code>HealthAggregator</code>产生的，它根据状态列表的顺序对每一个HealthIndicator进行排序。排序后列表中的第一个状态就是总体健康状态。如果没有 <code>HealthIndicator</code> 返回状态，将使用 <code>UNKNOWN</code> 状态。</p>
+<h4 id="281-auto-configured-healthindicators">2.8.1 Auto-configured HealthIndicators</h4>
+<p>Spring Boot 会在适当的情况下，自动加载以下<code>HealthIndicator</code> ：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/cassandra/CassandraHealthIndicator.java"><code>CassandraHealthIndicator</code></a></td>
+<td>Checks that a Cassandra database is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/system/DiskSpaceHealthIndicator.java"><code>DiskSpaceHealthIndicator</code></a></td>
+<td>Checks for low disk space.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/jdbc/DataSourceHealthIndicator.java"><code>DataSourceHealthIndicator</code></a></td>
+<td>Checks that a connection to <code>DataSource</code> can be obtained.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/elasticsearch/ElasticsearchHealthIndicator.java"><code>ElasticsearchHealthIndicator</code></a></td>
+<td>Checks that an Elasticsearch cluster is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/influx/InfluxDbHealthIndicator.java"><code>InfluxDbHealthIndicator</code></a></td>
+<td>Checks that an InfluxDB server is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/jms/JmsHealthIndicator.java"><code>JmsHealthIndicator</code></a></td>
+<td>Checks that a JMS broker is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/mail/MailHealthIndicator.java"><code>MailHealthIndicator</code></a></td>
+<td>Checks that a mail server is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/mongo/MongoHealthIndicator.java"><code>MongoHealthIndicator</code></a></td>
+<td>Checks that a Mongo database is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/neo4j/Neo4jHealthIndicator.java"><code>Neo4jHealthIndicator</code></a></td>
+<td>Checks that a Neo4j server is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/amqp/RabbitHealthIndicator.java"><code>RabbitHealthIndicator</code></a></td>
+<td>Checks that a Rabbit server is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/redis/RedisHealthIndicator.java"><code>RedisHealthIndicator</code></a></td>
+<td>Checks that a Redis server is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/solr/SolrHealthIndicator.java"><code>SolrHealthIndicator</code></a></td>
+<td>Checks that a Solr server is up.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>你可以通过属性 <code>management.health.defaults.enabled</code> 禁用它们。</p>
+</blockquote>
+<h4 id="282-writing-custom-healthindicators">2.8.2 Writing Custom HealthIndicators</h4>
+<p>实现 <a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/health/HealthIndicator.java"><code>HealthIndicator</code></a> 接口，把Bean注册到Spring中。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.boot.actuate.health.Health</span><span style="color:#000;font-weight:bold">;</span>
+<span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.boot.actuate.health.HealthIndicator</span><span style="color:#000;font-weight:bold">;</span>
+<span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.stereotype.Component</span><span style="color:#000;font-weight:bold">;</span>
+
+<span style="color:#3c5d5d;font-weight:bold">@Component</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">MyHealthIndicator</span> <span style="color:#000;font-weight:bold">implements</span> HealthIndicator <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#3c5d5d;font-weight:bold">@Override</span>
+	<span style="color:#000;font-weight:bold">public</span> Health <span style="color:#900;font-weight:bold">health</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+		<span style="color:#458;font-weight:bold">int</span> errorCode <span style="color:#000;font-weight:bold">=</span> check<span style="color:#000;font-weight:bold">();</span> <span style="color:#998;font-style:italic">// perform some specific health check
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">(</span>errorCode <span style="color:#000;font-weight:bold">!=</span> 0<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+			<span style="color:#000;font-weight:bold">return</span> Health<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">down</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">withDetail</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;Error Code&#34;</span><span style="color:#000;font-weight:bold">,</span> errorCode<span style="color:#000;font-weight:bold">).</span><span style="color:#008080">build</span><span style="color:#000;font-weight:bold">();</span>
+		<span style="color:#000;font-weight:bold">}</span>
+		<span style="color:#000;font-weight:bold">return</span> Health<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">up</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">build</span><span style="color:#000;font-weight:bold">();</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>给定 <code>HealthIndicator</code> 的标识符（id）是没有 <code>HealthIndicator</code> 后缀的bean的名字（如果存在）。在前面的示例中，健康信息在名为my的条目中可用。</p>
+</blockquote>
+<p>除了Spring Boot自定义的状态之外，还可以自定义 <code>Status</code> 。</p>
+<p>内置状态的默认状态映射：</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Mapping</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DOWN</td>
+<td>SERVICE_UNAVAILABLE (503)   服务不可用</td>
+</tr>
+<tr>
+<td>OUT_OF_SERVICE</td>
+<td>SERVICE_UNAVAILABLE (503)   服务不可用</td>
+</tr>
+<tr>
+<td>UP</td>
+<td>No mapping by default, so http status is 200</td>
+</tr>
+<tr>
+<td>UNKNOWN</td>
+<td>No mapping by default, so http status is 200</td>
+</tr>
+</tbody>
+</table>
+<h4 id="283-reactive-health-indicators响应式健康指标">2.8.3 Reactive Health Indicators（响应式健康指标）</h4>
+<p>对于响应式应用（例如使用 Spring WebFlux）， <code>ReactiveHealthIndicator</code> 提供了一种获取应用健康的非阻塞协议。</p>
+<p>自定义<code>ReactiveHealthIndicator</code> 实例：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Component</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">MyReactiveHealthIndicator</span> <span style="color:#000;font-weight:bold">implements</span> ReactiveHealthIndicator <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#3c5d5d;font-weight:bold">@Override</span>
+	<span style="color:#000;font-weight:bold">public</span> Mono<span style="color:#000;font-weight:bold">&lt;</span>Health<span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#900;font-weight:bold">health</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+		<span style="color:#000;font-weight:bold">return</span> doHealthCheck<span style="color:#000;font-weight:bold">()</span> <span style="color:#998;font-style:italic">//perform some specific health check that returns a Mono&lt;Health&gt;
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">onErrorResume</span><span style="color:#000;font-weight:bold">(</span>ex <span style="color:#000;font-weight:bold">-&gt;</span> Mono<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">just</span><span style="color:#000;font-weight:bold">(</span><span style="color:#000;font-weight:bold">new</span> Health<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">Builder</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">down</span><span style="color:#000;font-weight:bold">(</span>ex<span style="color:#000;font-weight:bold">).</span><span style="color:#008080">build</span><span style="color:#000;font-weight:bold">())));</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>要自动处理错误，考虑扩展AbstractReactiveHealthIndicator。</p>
+</blockquote>
+<h4 id="284-auto-configured-reactivehealthindicators">2.8.4 Auto-configured ReactiveHealthIndicators</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/mongo/MongoReactiveHealthIndicator.java"><code>MongoReactiveHealthIndicator</code></a></td>
+<td>Checks that a Mongo database is up.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/redis/RedisReactiveHealthIndicator.java"><code>RedisReactiveHealthIndicator</code></a></td>
+<td>Checks that a Redis server is up.</td>
+</tr>
+</tbody>
+</table>
+<p>必要时，反应性指标取代常规指标。而且，任何未显式处理的HealthIndicator都是自动包装的</p>
+<h3 id="29-application-information">2.9 Application Information</h3>
+<p>应用信息是通过 <a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/info/InfoContributor.java"><code>InfoContributor</code></a> 收集的。</p>
+<h4 id="291-auto-configured-infocontributors">2.9.1 Auto-configured InfoContributors</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/info/EnvironmentInfoContributor.java"><code>EnvironmentInfoContributor</code></a></td>
+<td>Exposes any key from the <code>Environment</code> under the <code>info</code> key.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/info/GitInfoContributor.java"><code>GitInfoContributor</code></a></td>
+<td>Exposes git information if a <code>git.properties</code> file is available.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/spring-projects/spring-boot/tree/v2.0.6.RELEASE/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/info/BuildInfoContributor.java"><code>BuildInfoContributor</code></a></td>
+<td>Exposes build information if a <code>META-INF/build-info.properties</code> file is available.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>It is possible to disable them all by setting the <code>management.info.defaults.enabled</code> property.</p>
+</blockquote>
+<h4 id="292-custom-application-information">2.9.2 Custom Application Information</h4>
+<p>可以通过设置 <code>info.*</code> 属性自定义 <code>info</code> 端点暴露的数据。所有带有 <code>info</code> key的 <code>Environment</code> 属性都会被自动暴露。例如，你可以在 <code>application.properties</code> 文件中增加以下属性：</p>
+<pre><code class="language-properties" data-lang="properties">info.app.encoding=UTF-8
+info.app.java.source=1.8
+info.app.java.target=1.8
+</code></pre><p>与其对这些值进行硬编码，你还可以 <a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/howto-properties-and-configuration.html#howto-automatic-expansion">expand info properties at build time</a>.假设你使用的是Maven，还可以这样写：</p>
+<pre><code class="language-properties" data-lang="properties">info.app.encoding=@project.build.sourceEncoding@
+info.app.java.source=@java.version@
+info.app.java.target=@java.version@
+</code></pre><h4 id="293-git-commit-information">2.9.3 Git Commit Information</h4>
+<p>info端点的另一个有用特性是它能够在构建项目时发布有关git源代码库状态的信息。</p>
+<h4 id="294-build-information">2.9.4 Build Information</h4>
+<p>如果 <code>BuildProperties</code> bean可用， <code>info</code> 端点还可以发布构建信息。如果 <code>META-INF/build-info.properties</code> 文件在classpath中可用，则会发生这种情况。</p>
+<h4 id="295-writing-custom-infocontributors">2.9.5 Writing Custom InfoContributors</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">java.util.Collections</span><span style="color:#000;font-weight:bold">;</span>
+
+<span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.boot.actuate.info.Info</span><span style="color:#000;font-weight:bold">;</span>
+<span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.boot.actuate.info.InfoContributor</span><span style="color:#000;font-weight:bold">;</span>
+<span style="color:#000;font-weight:bold">import</span> <span style="color:#555">org.springframework.stereotype.Component</span><span style="color:#000;font-weight:bold">;</span>
+
+<span style="color:#3c5d5d;font-weight:bold">@Component</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">ExampleInfoContributor</span> <span style="color:#000;font-weight:bold">implements</span> InfoContributor <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#3c5d5d;font-weight:bold">@Override</span>
+	<span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">contribute</span><span style="color:#000;font-weight:bold">(</span>Info<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">Builder</span> builder<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+		builder<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">withDetail</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;example&#34;</span><span style="color:#000;font-weight:bold">,</span>
+				Collections<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">singletonMap</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;key&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#d14">&#34;value&#34;</span><span style="color:#000;font-weight:bold">));</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="52-monitoring-and-management-over-http">52 Monitoring and Management over HTTP</h2>
+<p>默认情况下， Spring Boot Actuator 自动配置暴露HTTP端点。默认路径是 <code>/actuator</code> + <code>id</code> 。Actuator 天生由 Spring MVC, Spring WebFlux, and Jersey支持。</p>
+<h3 id="521-customizing-the-management-endpoint-paths">52.1 Customizing the Management Endpoint Paths</h3>
+<p>自定义路径。</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.web.base-path=/manage
+management.endpoints.web.path-mapping.health=healthcheck
+</code></pre><h3 id="522-customizing-the-management-server-port">52.2 Customizing the Management Server Port</h3>
+<p>自定义端口。</p>
+<pre><code class="language-properties" data-lang="properties">management.server.port=8081
+</code></pre><h3 id="523-configuring-management-specific-ssl">52.3 Configuring Management-specific SSL</h3>
+<p>自定义SSL</p>
+<pre><code class="language-properties" data-lang="properties">server.port=8443
+server.ssl.enabled=true
+server.ssl.key-store=classpath:main.jks
+server.ssl.key-password=secret
+management.server.port=8080
+management.server.ssl.enabled=true
+management.server.ssl.key-store=classpath:management.jks
+management.server.ssl.key-password=secret
+</code></pre><h3 id="524-customizing-the-management-server-address">52.4 Customizing the Management Server Address</h3>
+<pre><code class="language-properties" data-lang="properties">management.server.port=8081
+management.server.address=127.0.0.1
+</code></pre><h3 id="525-disabling-http-endpoints">52.5 Disabling HTTP Endpoints</h3>
+<p>禁用HTTP端点</p>
+<pre><code class="language-properties" data-lang="properties">management.server.port=-1
+</code></pre><p>或</p>
+<pre><code class="language-properties" data-lang="properties">management.server.port=-1
+</code></pre><h2 id="53-monitoring-and-management-over-jmx">53 Monitoring and Management over JMX</h2>
+<p>。。。</p>
+<h2 id="54-loggers">54 Loggers</h2>
+<p>Spring Boot Actuator包含在应用程序运行时查看和配置日志级别的能力。您可以查看整个列表或单个日志程序的配置，该配置由显式配置的日志级别和日志框架提供给它的有效日志级别组成。这些级别可以是:</p>
+<ul>
+<li><code>TRACE</code></li>
+<li><code>DEBUG</code></li>
+<li><code>INFO</code></li>
+<li><code>WARN</code></li>
+<li><code>ERROR</code></li>
+<li><code>FATAL</code></li>
+<li><code>OFF</code></li>
+<li><code>null</code></li>
+</ul>
+<p><code>null</code> indicates that there is no explicit configuration.</p>
+<h3 id="541-configure-a-logger">54.1 Configure a Logger</h3>
+<p><code>POST</code>a partial entity to the resource’s URI,:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+	<span style="color:#000080">&#34;configuredLevel&#34;</span>: <span style="color:#d14">&#34;DEBUG&#34;</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="55-metrics">55 Metrics</h2>
+<p>Spring Boot Actuator 集成了 <a href="https://micrometer.io/">Micrometer</a>。支持很多监控系统</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-atlas">Atlas</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-datadog">Datadog</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-ganglia">Ganglia</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-graphite">Graphite</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-influx">Influx</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-jmx">JMX</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-newrelic">New Relic</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-prometheus">Prometheus</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-signalfx">SignalFx</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-simple">Simple (in-memory)</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-statsd">StatsD</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready-metrics.html#production-ready-metrics-export-wavefront">Wavefront</a></li>
+</ul>
+<h3 id="551-getting-started">55.1 Getting started</h3>
+<p>引入 <code>micrometer-registry-{system}</code> 。</p>
+<p>禁用registry ：</p>
+<pre><code class="language-properties" data-lang="properties">management.metrics.export.datadog.enabled=false
+</code></pre><p>你可以注册任意数量的 <code>MeterRegistryCustomizer</code> bean进一步配置registry，例如应用common tags：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Bean</span>
+MeterRegistryCustomizer<span style="color:#000;font-weight:bold">&lt;</span>MeterRegistry<span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#900;font-weight:bold">metricsCommonTags</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#000;font-weight:bold">return</span> registry <span style="color:#000;font-weight:bold">-&gt;</span> registry<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">config</span><span style="color:#000;font-weight:bold">().</span><span style="color:#008080">commonTags</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;region&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#d14">&#34;us-east-1&#34;</span><span style="color:#000;font-weight:bold">);</span>
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>注入 <code>MeterRegistry</code> ，并注册metrics：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Component</span>
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">SampleBean</span> <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#000;font-weight:bold">private</span> <span style="color:#000;font-weight:bold">final</span> Counter counter<span style="color:#000;font-weight:bold">;</span>
+
+	<span style="color:#000;font-weight:bold">public</span> <span style="color:#900;font-weight:bold">SampleBean</span><span style="color:#000;font-weight:bold">(</span>MeterRegistry registry<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+		<span style="color:#000;font-weight:bold">this</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">counter</span> <span style="color:#000;font-weight:bold">=</span> registry<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">counter</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;received.messages&#34;</span><span style="color:#000;font-weight:bold">);</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+	<span style="color:#000;font-weight:bold">public</span> <span style="color:#458;font-weight:bold">void</span> <span style="color:#900;font-weight:bold">handleMessage</span><span style="color:#000;font-weight:bold">(</span>String message<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+		<span style="color:#000;font-weight:bold">this</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">counter</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">increment</span><span style="color:#000;font-weight:bold">();</span>
+		<span style="color:#998;font-style:italic">// handle message implementation
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="552-supported-monitoring-systems">55.2 Supported monitoring systems</h3>
+<p>。。。</p>
+<h4 id="5528-prometheus">55.2.8 Prometheus</h4>
+<p>端点路径： <code>/actuator/prometheus</code></p>
+<p>prometheus.yml配置：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">scrape_configs:<span style="color:#bbb">
+</span><span style="color:#bbb">  </span>- <span style="color:#000;font-weight:bold">job_name</span>:<span style="color:#bbb"> </span><span style="color:#d14">&#39;spring&#39;</span><span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#000;font-weight:bold">metrics_path</span>:<span style="color:#bbb"> </span><span style="color:#d14">&#39;/actuator/prometheus&#39;</span><span style="color:#bbb">
+</span><span style="color:#bbb">	</span>static_configs:<span style="color:#bbb">
+</span><span style="color:#bbb">	  </span>- <span style="color:#000;font-weight:bold">targets</span>:<span style="color:#bbb"> </span>[<span style="color:#d14">&#39;HOST:PORT&#39;</span>]<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>。。。</p>
+<h3 id="553-supported-metrics">55.3 Supported Metrics</h3>
+<p>核心Metrics：</p>
+<ul>
+<li>JVM metrics, report utilization of:
+<ul>
+<li>Various memory and buffer pools</li>
+<li>Statistics related to garbage collection</li>
+<li>Threads utilization</li>
+<li>Number of classes loaded/unloaded</li>
+</ul>
+</li>
+<li>CPU metrics</li>
+<li>File descriptor metrics</li>
+<li>Logback metrics: record the number of events logged to Logback at each level</li>
+<li>Uptime metrics: report a gauge for uptime and a fixed gauge representing the application’s absolute start time</li>
+<li>Tomcat metrics</li>
+<li><a href="https://docs.spring.io/spring-integration/docs/current/reference/html/system-management-chapter.html#micrometer-integration">Spring Integration</a> metrics</li>
+</ul>
+<h4 id="5531-spring-mvc-metrics">55.3.1 Spring MVC Metrics</h4>
+<p>配置 <code>management.metrics.web.server.auto-time-requests</code> 为 <code>true</code>，作用于所有请求；若为 <code>false</code>，仅作用于带有 <code>@Timed</code> 注解的请求方法上。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@RestController</span>
+<span style="color:#3c5d5d;font-weight:bold">@Timed</span> 1
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">MyController</span> <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#3c5d5d;font-weight:bold">@GetMapping</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;/api/people&#34;</span><span style="color:#000;font-weight:bold">)</span>
+	<span style="color:#3c5d5d;font-weight:bold">@Timed</span><span style="color:#000;font-weight:bold">(</span>extraTags <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">{</span> <span style="color:#d14">&#34;region&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#d14">&#34;us-east-1&#34;</span> <span style="color:#000;font-weight:bold">})</span> 2
+	<span style="color:#3c5d5d;font-weight:bold">@Timed</span><span style="color:#000;font-weight:bold">(</span>value <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;all.people&#34;</span><span style="color:#000;font-weight:bold">,</span> longTask <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">true</span><span style="color:#000;font-weight:bold">)</span> 3
+	<span style="color:#000;font-weight:bold">public</span> List<span style="color:#000;font-weight:bold">&lt;</span>Person<span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#900;font-weight:bold">listPeople</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span> <span style="color:#000;font-weight:bold">...</span> <span style="color:#000;font-weight:bold">}</span>
+
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol>
+<li>对MyController中的每个请求处理启用计时。</li>
+<li>为单个端点启用。如果类上已经有@Timed，这个就没有必要。可以用于自定义timer。</li>
+<li><code>longTask = true</code> 启用 long task timer 。</li>
+</ol>
+<p>metrics name为 <code>http.server.requests</code>。这个名字可以通过配置<code>management.metrics.web.server.requests-metric-name</code> 自定义。</p>
+<p>默认的tag：</p>
+<ul>
+<li><code>method</code>, the request’s method (for example, <code>GET</code> or <code>POST</code>).</li>
+<li><code>uri</code>, the request’s URI template prior to variable substitution, if possible (for example, <code>/api/person/{id}</code>).</li>
+<li><code>status</code>, the response’s HTTP status code (for example, <code>200</code> or <code>500</code>).</li>
+<li><code>exception</code>, the simple class name of any exception that was thrown while handling the request.</li>
+</ul>
+<p>自定义tag，通过 <code>WebMvcTagsProvider</code>实现类。</p>
+<h4 id="5532-spring-webflux-metrics">55.3.2 Spring WebFlux Metrics</h4>
+<p>同上</p>
+<h4 id="5533-resttemplate-metrics">55.3.3 RestTemplate Metrics</h4>
+<p>通过自动配置 <code>RestTemplateBuilder</code> 创建的 <code>RestTemplate</code> 会自动应用。也可以通过<code>MetricsRestTemplateCustomizer</code> 手动应用。</p>
+<p>Metrics name为 <code>http.client.requests</code>.</p>
+<p>tags：</p>
+<ul>
+<li><code>method</code>, the request’s method (for example, <code>GET</code> or <code>POST</code>).</li>
+<li><code>uri</code>, the request’s URI template prior to variable substitution, if possible (for example, <code>/api/person/{id}</code>).</li>
+<li><code>status</code>, the response’s HTTP status code (for example, <code>200</code> or <code>500</code>).</li>
+<li><code>clientName</code>, the host portion of the URI.</li>
+</ul>
+<h4 id="5534-cache-metrics">55.3.4 Cache Metrics</h4>
+<p>支持以下缓存库</p>
+<ul>
+<li>Caffeine</li>
+<li>EhCache 2</li>
+<li>Hazelcast</li>
+<li>Any compliant JCache (JSR-107) implementation</li>
+</ul>
+<h4 id="5535-datasource-metrics">55.3.5 DataSource Metrics</h4>
+<h3 id="554-registering-custom-metrics">55.4 Registering custom metrics</h3>
+<p>注入 <code>MeterRegistry</code></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#000;font-weight:bold">class</span> <span style="color:#458;font-weight:bold">Dictionary</span> <span style="color:#000;font-weight:bold">{</span>
+
+	<span style="color:#000;font-weight:bold">private</span> <span style="color:#000;font-weight:bold">final</span> List<span style="color:#000;font-weight:bold">&lt;</span>String<span style="color:#000;font-weight:bold">&gt;</span> words <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> CopyOnWriteArrayList<span style="color:#000;font-weight:bold">&lt;&gt;();</span>
+
+	Dictionary<span style="color:#000;font-weight:bold">(</span>MeterRegistry registry<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">{</span>
+		registry<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">gaugeCollectionSize</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;dictionary.size&#34;</span><span style="color:#000;font-weight:bold">,</span> Tags<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">empty</span><span style="color:#000;font-weight:bold">(),</span> <span style="color:#000;font-weight:bold">this</span><span style="color:#000;font-weight:bold">.</span><span style="color:#008080">words</span><span style="color:#000;font-weight:bold">);</span>
+	<span style="color:#000;font-weight:bold">}</span>
+
+	<span style="color:#998;font-style:italic">// …
+</span><span style="color:#998;font-style:italic"></span>
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>MeterBinder</code> 实现自动绑定。</p>
+<h3 id="555-customizing-individual-metrics">55.5 Customizing individual metrics</h3>
+<p>For example, if you want to rename the <code>mytag.region</code> tag to <code>mytag.area</code> for all meter IDs beginning with <code>com.example</code>, you can do the following:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#3c5d5d;font-weight:bold">@Bean</span>
+<span style="color:#000;font-weight:bold">public</span> MeterFilter <span style="color:#900;font-weight:bold">renameRegionTagMeterFilter</span><span style="color:#000;font-weight:bold">()</span> <span style="color:#000;font-weight:bold">{</span>
+	<span style="color:#000;font-weight:bold">return</span> MeterFilter<span style="color:#000;font-weight:bold">.</span><span style="color:#008080">renameTag</span><span style="color:#000;font-weight:bold">(</span><span style="color:#d14">&#34;com.example&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#d14">&#34;mytag.region&#34;</span><span style="color:#000;font-weight:bold">,</span> <span style="color:#d14">&#34;mytag.area&#34;</span><span style="color:#000;font-weight:bold">);</span>
+<span style="color:#000;font-weight:bold">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="556-metrics-endpoint">55.6 Metrics endpoint</h3>
+<p><code>/actuator/metrics</code></p>
+<p><code>/actuator/metrics/jvm.memory.max</code></p>
+<p><code>/actuator/metrics/jvm.memory.max?tag=area:nonheap</code></p>
+<p><code>/actuator/metrics/jvm.memory.max?tag=area:nonheap&amp;tag=id:Metaspace</code></p>
+<h2 id="56-auditing审计">56 Auditing（审计）</h2>
+<h2 id="57-http-tracing">57 HTTP Tracing</h2>
+<p>http://127.0.0.1:9992/actuator/httptrace</p>
+<h2 id="3-实验">3 实验</h2>
+<p>版本：Spring Boot 2.0.6</p>
+<p>1、添加依赖</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">		<span style="color:#000080">&lt;dependency&gt;</span>
+			<span style="color:#000080">&lt;groupId&gt;</span>org.springframework.boot<span style="color:#000080">&lt;/groupId&gt;</span>
+			<span style="color:#000080">&lt;artifactId&gt;</span>spring-boot-starter-actuator<span style="color:#000080">&lt;/artifactId&gt;</span>
+		<span style="color:#000080">&lt;/dependency&gt;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>访问  http://127.0.0.1:9992/actuator/ ， 返回</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#000080">&#34;_links&#34;</span>:{
+        <span style="color:#000080">&#34;self&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;health&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/health&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;info&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/info&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>验证默认情况下，只暴露 <code>health</code> 和 <code>info</code> 端点。</p>
+<p>2、增加配置属性</p>
+<pre><code class="language-properties" data-lang="properties">management.endpoints.web.exposure.include=*
+</code></pre><p>访问  http://127.0.0.1:9992/actuator/ ， 返回</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">84
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">85
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">86
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">87
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">88
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">89
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">90
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">91
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">92
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+    <span style="color:#000080">&#34;_links&#34;</span>:{
+        <span style="color:#000080">&#34;self&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;archaius&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/archaius&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;auditevents&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/auditevents&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;beans&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/beans&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;health&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/health&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;conditions&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/conditions&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;configprops&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/configprops&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;env&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/env&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;env-toMatch&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/env/{toMatch}&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">true</span>
+        },
+        <span style="color:#000080">&#34;info&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/info&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;loggers&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/loggers&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;loggers-name&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/loggers/{name}&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">true</span>
+        },
+        <span style="color:#000080">&#34;heapdump&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/heapdump&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;threaddump&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/threaddump&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;metrics&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/metrics&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;metrics-requiredMetricName&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/metrics/{requiredMetricName}&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">true</span>
+        },
+        <span style="color:#000080">&#34;scheduledtasks&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/scheduledtasks&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;httptrace&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/httptrace&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;mappings&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/mappings&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;refresh&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/refresh&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;features&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/features&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        },
+        <span style="color:#000080">&#34;service-registry&#34;</span>:{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/service-registry&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        }
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>验证，暴露所有端点。</p>
+<p>3、增加依赖</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">		<span style="color:#000080">&lt;dependency&gt;</span>
+			<span style="color:#000080">&lt;groupId&gt;</span>io.micrometer<span style="color:#000080">&lt;/groupId&gt;</span>
+			<span style="color:#000080">&lt;artifactId&gt;</span>micrometer-registry-prometheus<span style="color:#000080">&lt;/artifactId&gt;</span>
+		<span style="color:#000080">&lt;/dependency&gt;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>访问  http://127.0.0.1:9992/actuator/ ，返回新增了</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">        <span style="color:#d14">&#34;prometheus&#34;</span><span style="color:#a61717;background-color:#e3d2d2">:</span>{
+            <span style="color:#000080">&#34;href&#34;</span>:<span style="color:#d14">&#34;http://127.0.0.1:9992/actuator/prometheus&#34;</span>,
+            <span style="color:#000080">&#34;templated&#34;</span>:<span style="color:#000;font-weight:bold">false</span>
+        }
+</code></pre></td></tr></table>
+</div>
+</div><p>为监控系统 prometheus 提供数据源。</p>
+<blockquote>
+<p><a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready.html">https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/production-ready.html</a></p>
+</blockquote>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/archives/">归档</a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://zaizhoumo.github.io/tags/Actuator'>Actuator</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://zaizhoumo.github.io/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://zaizhoumo.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://zaizhoumo.github.io/post/%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%8D%9A%E5%AE%A2/" title="第一个博客">第一个博客</a>
+    </li>
+    
+    <li>
+        <a href="https://zaizhoumo.github.io/post/Spring-Boot-Actuator/" title="Spring Boot Actuator">Spring Boot Actuator</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://zaizhoumo.github.io/categories/Spring-Boot/">Spring Boot (1)</a></li>
+    
+    <li><a href="https://zaizhoumo.github.io/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">博客搭建 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://zaizhoumo.github.io/tags/Actuator/">Actuator</a>
+    
+    <a href="https://zaizhoumo.github.io/tags/hugo/">hugo</a>
+    
+</div>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://zaizhoumo.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://zaizhoumo.github.io">在周末的博客 By 在周末</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+</body>
+
+</html>
