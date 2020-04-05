@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on My New Hugo Site</title>
+    <link>https://zaizhoumo.github.io/posts/</link>
+    <description>Recent content in Posts on My New Hugo Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 05 Apr 2020 13:12:35 +0800</lastBuildDate>
+    
+	<atom:link href="https://zaizhoumo.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>第一个博客</title>
+      <link>https://zaizhoumo.github.io/posts/%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8D%9A%E5%AE%A2/</link>
+      <pubDate>Sun, 05 Apr 2020 13:12:35 +0800</pubDate>
+      
+      <guid>https://zaizhoumo.github.io/posts/%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8D%9A%E5%AE%A2/</guid>
+      <description>标题1 标题2 sdfggsdf线程被告知需</description>
+    </item>
+    
+  </channel>
+</rss>
