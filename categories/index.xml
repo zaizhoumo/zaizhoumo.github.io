@@ -6,28 +6,9 @@
     <description>Recent content in Categories on 在周末的博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 05 Apr 2009 16:08:27 +0800</lastBuildDate>
     
 	<atom:link href="https://zaizhoumo.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>博客搭建</title>
-      <link>https://zaizhoumo.github.io/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</link>
-      <pubDate>Sun, 05 Apr 2009 16:08:27 +0800</pubDate>
-      
-      <guid>https://zaizhoumo.github.io/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Spring Boot</title>
-      <link>https://zaizhoumo.github.io/categories/Spring-Boot/</link>
-      <pubDate>Sat, 05 Apr 2008 16:08:27 +0800</pubDate>
-      
-      <guid>https://zaizhoumo.github.io/categories/Spring-Boot/</guid>
-      <description></description>
-    </item>
     
   </channel>
 </rss>
