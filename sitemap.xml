@@ -3,15 +3,43 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://zaizhoumo.github.io/categories/</loc>
-  </url>
-  
-  <url>
-    <loc>https://zaizhoumo.github.io/tags/</loc>
+    <loc>https://zaizhoumo.github.io/about/</loc>
+    <lastmod>2020-04-05T17:50:27+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://zaizhoumo.github.io/</loc>
+    <lastmod>2020-04-05T17:50:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/tags/Actuator/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/categories/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/post/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/categories/Spring-Boot/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/post/Spring-Boot-Actuator/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zaizhoumo.github.io/tags/</loc>
+    <lastmod>2008-04-05T16:08:27+08:00</lastmod>
   </url>
   
   <url>

@@ -6,9 +6,19 @@
     <description>Recent content in Tags on 在周末的博客</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
+    <lastBuildDate>Sat, 05 Apr 2008 16:08:27 +0800</lastBuildDate>
     
 	<atom:link href="https://zaizhoumo.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Actuator</title>
+      <link>https://zaizhoumo.github.io/tags/Actuator/</link>
+      <pubDate>Sat, 05 Apr 2008 16:08:27 +0800</pubDate>
+      
+      <guid>https://zaizhoumo.github.io/tags/Actuator/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>
